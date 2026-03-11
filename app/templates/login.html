@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1 class="title">Brasileiros no Atacama</h1>
+    <p class="subtitle">Faça login para continuar</p>
+
+    {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% endif %}
+
+    <form action="/login" method="post">
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Digite seu email" required>
+        </div>
+
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" name="password" placeholder="Digite sua senha" required>
+        </div>
+
+        <button type="submit">Entrar</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
