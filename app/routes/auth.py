@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+from app.models.user import User
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
-
-TEST_EMAIL = "admin@crm.com"
-TEST_PASSWORD = "123456"
-
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
@@ -16,9 +16,17 @@ def login_page(request: Request):
 
 
 @router.post("/login", response_class=HTMLResponse)
-def login_submit(request: Request, email: str = Form(...), password: str = Form(...)):
-    if email == TEST_EMAIL and password == TEST_PASSWORD:
-        request.session["user"] = email
+def login_submit(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+     db: Session = Depends(get_db)
+     ):
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if user and user.password == password:
+        request.session["user"] = user.email
         return RedirectResponse(url="/dashboard", status_code=303)
 
     return templates.TemplateResponse(
@@ -29,7 +37,7 @@ def login_submit(request: Request, email: str = Form(...), password: str = Form(
         }
     )
 
-@router.post("/logout", response_class=HTMLResponse)
+@router.get("/logout", response_class=HTMLResponse)
 def logout(request: Request):
         request.session.clear()
         return RedirectResponse(url="/login", status_code=303)
