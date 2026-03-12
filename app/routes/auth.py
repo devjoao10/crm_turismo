@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.models.user import User
-
+from app.utils.security import verify_password
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
@@ -25,7 +25,7 @@ def login_submit(
 
     user = db.query(User).filter(User.email == email).first()
 
-    if user and user.password == password:
+    if user and verify_password(password, user.password()):
         request.session["user"] = user.email
         return RedirectResponse(url="/dashboard", status_code=303)
 

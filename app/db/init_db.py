@@ -1,6 +1,7 @@
 from app.db.database import Base, engine, SessionLocal
 from sqlalchemy.orm import Session
 from app.models.user import User
+from app.utils.security import hash_password
 
 def create_default_user():
         db: Session = SessionLocal()
@@ -11,7 +12,7 @@ def create_default_user():
                 default_user = User(
                     name="Administrador",
                     email="admin@crm.com",
-                    password="123456",
+                    password=hash_password("123456"),
                     is_active=True
                 )
                 db.add(default_user)
