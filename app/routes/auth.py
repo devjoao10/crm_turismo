@@ -18,6 +18,7 @@ def login_page(request: Request):
 @router.post("/login", response_class=HTMLResponse)
 def login_submit(request: Request, email: str = Form(...), password: str = Form(...)):
     if email == TEST_EMAIL and password == TEST_PASSWORD:
+        request.session["user"] = email
         return RedirectResponse(url="/dashboard", status_code=303)
 
     return templates.TemplateResponse(
@@ -28,5 +29,7 @@ def login_submit(request: Request, email: str = Form(...), password: str = Form(
         }
     )
 
-
-    return RedirectResponse(url="/dashboard", status_code=303)
+@router.post("/logout", response_class=HTMLResponse)
+def logout(request: Request):
+        request.session.clear()
+        return RedirectResponse(url="/login", status_code=303)

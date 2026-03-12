@@ -3,8 +3,12 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from app.routes.auth import router as auth_router
 from app.routes.dashboard import router as dashboard_router
+from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI(title="CRM Turismo")
+
+app.add_middleware(SessionMiddleware, secret_key="chave-super-secreta")
+
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
