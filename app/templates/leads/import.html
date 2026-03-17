@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Leads - CRM Turismo</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=11">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>CRM Turismo</h2>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/users">Usuários</a>
+                <a href="/leads" class="active">Leads</a>
+                <a href="/logout">Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Importar Leads</h1>
+                <p>Envie uma planilha Excel para cadastrar leads em lote.</p>
+            </div>
+
+            <div class="card form-container">
+                {% if success %}
+                    <div class="error-message" style="color:#065f46; background:#d1fae5; border-color:#a7f3d0;">
+                        {{ success }}
+                    </div>
+                {% endif %}
+
+                {% if error %}
+                    {% if error is string %}
+                        <div class="error-message">{{ error }}</div>
+                    {% else %}
+                        <div class="error-message">
+                            <strong>Erros encontrados:</strong>
+                            <ul style="margin-top:8px; padding-left:18px;">
+                                {% for item in error %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <form action="/leads/import" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Arquivo Excel (.xlsx)</label>
+                        <input type="file" name="file" accept=".xlsx" required>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn">Importar</button>
+                        <a href="/leads" class="btn btn-secondary">Voltar</a>
+                    </div>
+                </form>
+
+                <div style="margin-top: 24px; color: #4b5563; line-height: 1.6;">
+                    <strong>Formato esperado da planilha:</strong>
+                    <p style="margin-top: 8px;">
+                        nome | email | whatsapp | status | destinos | data_ida | data_volta
+                    </p>
+                    <p style="margin-top: 8px;">
+                        Status válidos: novo, em_contato, negociacao, fechado, perdido
+                    </p>
+                    <p style="margin-top: 8px;">
+                        Exemplo de destinos: ATACAMA,SANTIAGO
+                    </p>
+                    <p style="margin-top: 8px;">
+                        Exemplo de datas: 2026-04-10 e 2026-04-18
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

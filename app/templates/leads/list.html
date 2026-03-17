@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads - CRM Turismo</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=11">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>CRM Turismo</h2>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/users">Usuários</a>
+                <a href="/leads" class="active">Leads</a>
+                <a href="/logout">Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Leads</h1>
+                <p>Gerencie os leads cadastrados no sistema.</p>
+            </div>
+
+            <div class="card">
+                <div class="actions">
+                    <a href="/leads/create" class="btn">Novo Lead</a>
+                    <a href="/leads/import" class="btn">Importar Excel</a>
+                    <a href="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>WhatsApp</th>
+                                <th>Status</th>
+                                <th>Destinos</th>
+                                <th>Ida</th>
+                                <th>Volta</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lead in leads %}
+                            <tr>
+                                <td>{{ lead.id }}</td>
+                                <td>{{ lead.name }}</td>
+                                <td>{{ lead.email }}</td>
+                                <td>{{ lead.whatsapp }}</td>
+                                <td>{{ get_status_label(lead.status) }}</td>
+                                <td>
+                                    {% for destination in lead.destinations %}
+                                        {{ destination.name }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ lead.travel_start_date }}</td>
+                                <td>{{ lead.travel_end_date }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <a href="/leads/{{ lead.id }}/edit" class="btn btn-secondary">Editar</a>
+                                        <form action="/leads/{{ lead.id }}/delete" method="post" style="display:inline;">
+                                            <button type="submit">Excluir</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if not leads %}
+                    <p style="margin-top: 16px; color: #6b7280;">
+                        Nenhum lead cadastrado ainda.
+                    </p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
