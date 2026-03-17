@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários - CRM Turismo</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=3">
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>CRM Turismo</h2>
+
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/users" class="active">Usuários</a>
+                <a href="/logout">Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Usuários</h1>
+                <p>Gerencie os usuários cadastrados no sistema.</p>
+            </div>
+
+            <div class="card">
+                <div class="actions">
+                    <a href="/users/create" class="btn">Novo Usuário</a>
+                    <a href="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Ativo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.is_active }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

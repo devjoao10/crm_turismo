@@ -25,7 +25,7 @@ def login_submit(
 
     user = db.query(User).filter(User.email == email).first()
 
-    if user and verify_password(password, user.password()):
+    if user and verify_password(password, user.password):
         request.session["user"] = user.email
         return RedirectResponse(url="/dashboard", status_code=303)
 

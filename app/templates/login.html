@@ -1,38 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - CRM Turismo</title>
+
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
 
-<div class="login-box">
+<div class="login-wrapper">
 
-    <h1 class="title">Brasileiros no Atacama</h1>
-    <p class="subtitle">Faça login para continuar</p>
+    <div class="login-box">
 
-    {% if error %}
-        <p class="error-message">{{ error }}</p>
-    {% endif %}
+        <h1>CRM Turismo</h1>
+        <p class="subtitle">Acesse sua conta</p>
 
-    <form action="/login" method="post">
-
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" placeholder="Digite seu email" required>
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
         </div>
+        {% endif %}
 
-        <div class="form-group">
-            <label>Senha</label>
-            <input type="password" name="password" placeholder="Digite sua senha" required>
-        </div>
+        <form action="/login" method="post">
 
-        <button type="submit">Entrar</button>
+            <div class="form-group">
+                <label>Email</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="Digite seu email"
+                    required
+                >
+            </div>
 
-    </form>
+            <div class="form-group">
+                <label>Senha</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Digite sua senha"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn" style="width:100%; margin-top:10px;">
+                Entrar
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
