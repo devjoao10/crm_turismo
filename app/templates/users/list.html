@@ -40,6 +40,7 @@
                                 <th>Nome</th>
                                 <th>Email</th>
                                 <th>Ativo</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -48,7 +49,26 @@
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
-                                <td>{{ user.is_active }}</td>
+                                <td>
+                                    {% if user.is_active %}
+                                        <span style="color: green; font-weight: bold;">Sim</span>
+                                    {% else %}
+                                        <span style="color: red; font-weight: bold;">Não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if current_user and user.id != current_user.id %}
+                                    <form action="/users/{{ user.id }}/toggle-active" method="POST" style="margin: 0;">
+                                        {% if user.is_active %}
+                                            <button type="submit" class="btn" style="background-color: #ef4444; border: none; padding: 5px 10px; border-radius: 4px; color: white; cursor: pointer;">Desativar</button>
+                                        {% else %}
+                                            <button type="submit" class="btn" style="background-color: #10b981; border: none; padding: 5px 10px; border-radius: 4px; color: white; cursor: pointer;">Ativar</button>
+                                        {% endif %}
+                                    </form>
+                                    {% else %}
+                                        <span style="color: #999; font-size: 12px;">Seu usuário</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

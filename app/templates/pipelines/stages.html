@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etapas do Funil - CRM Turismo</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=3">
+    <style>
+        .stage-card { background: #fff; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>CRM Turismo</h2>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/users">Usuários</a>
+                <a href="/leads">Leads</a>
+                <a href="/pipelines" class="active">Funis (Kanban)</a>
+                <a href="/logout">Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Etapas: {{ pipeline.name }}</h1>
+                <p><a href="/pipelines" style="color: #3b82f6; text-decoration: none;">&larr; Voltar para Funis</a></p>
+            </div>
+
+            {% if error %}
+            <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                
+                <div class="card" style="flex: 1;">
+                    <h2>Adicionar Etapa</h2>
+                    <form action="/pipelines/{{ pipeline.id }}/stages" method="POST" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label>Nome da Etapa:</label>
+                            <input type="text" name="name" class="form-control" placeholder="Ex: Contato Inicial" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Ordem (Número):</label>
+                            <input type="number" name="order" class="form-control" value="0">
+                        </div>
+                        <button type="submit" class="btn" style="background: #10b981; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Adicionar</button>
+                    </form>
+                </div>
+
+                <div class="card" style="flex: 2;">
+                    <h2>Etapas Atuais (Ordem Crescente)</h2>
+                    <div style="margin-top: 15px;">
+                        {% if stages %}
+                            {% for stage in stages %}
+                            <div class="stage-card">
+                                <div>
+                                    <strong style="color: #555;">#{{ stage.order }}</strong> - {{ stage.name }}
+                                </div>
+                                <form action="/pipelines/stages/{{ stage.id }}/delete" method="POST" style="margin: 0;" onsubmit="return confirm('Confirma a exclusão da etapa?');">
+                                    <button type="submit" class="btn-delete">Excluir</button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #666;">Nenhuma etapa configurada.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

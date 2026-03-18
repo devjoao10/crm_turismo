@@ -26,6 +26,14 @@ def login_submit(
     user = db.query(User).filter(User.email == email).first()
 
     if user and verify_password(password, user.password):
+        if not user.is_active:
+            return templates.TemplateResponse(
+                "login.html",
+                {   
+                    "request": request,
+                    "error": "Sua conta está inativa ou aguardando confirmação. Verifique seu e-mail."
+                }
+            )
         request.session["user"] = user.email
         return RedirectResponse(url="/dashboard", status_code=303)
 

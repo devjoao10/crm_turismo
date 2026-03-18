@@ -25,9 +25,12 @@ class Lead(Base):
     travel_start_date = Column(Date, nullable=False)
     travel_end_date = Column(Date, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    pipeline_stage_id = Column(Integer, ForeignKey("pipeline_stages.id"), nullable=True)
 
     destinations = relationship(
         "Destination",
         secondary=lead_destinations,
         back_populates="leads"
     )
+
+    pipeline_stage = relationship("PipelineStage", back_populates="leads")

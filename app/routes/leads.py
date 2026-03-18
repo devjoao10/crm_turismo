@@ -1,16 +1,18 @@
 from datetime import datetime
 from io import BytesIO
 
-from fastapi import APIRouter, Request, Depends, Form, UploadFile, File
+from fastapi import APIRouter, Request, Depends, Form, UploadFile, File, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
 from openpyxl import load_workbook
 
 from app.db.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.lead import Lead
 from app.models.destination import Destination
+from app.models.pipeline import Pipeline, PipelineStage
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -36,6 +38,11 @@ def get_status_label(status: str) -> str:
 @router.get("/leads", response_class=HTMLResponse)
 def list_leads(
     request: Request,
+    status: str | None = Query(default=None),
+    destination_id: int | None = Query(default=None),
+    search: str | None = Query(default=None),
+    travel_start: str | None = Query(default=None),
+    travel_end: str | None = Query(default=None),
     db: Session = Depends(get_db)
 ):
     try:
@@ -43,12 +50,37 @@ def list_leads(
     except:
         return RedirectResponse(url="/login", status_code=303)
 
-    leads = (
+    destinations = db.query(Destination).order_by(Destination.name.asc()).all()
+
+    query = (
         db.query(Lead)
         .options(joinedload(Lead.destinations))
         .order_by(Lead.id.desc())
-        .all()
     )
+
+    if status and is_valid_status(status):
+        query = query.filter(Lead.status == status)
+
+    if destination_id:
+        query = query.join(Lead.destinations).filter(Destination.id == destination_id)
+
+    if search and search.strip():
+        search_value = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                Lead.name.ilike(search_value),
+                Lead.email.ilike(search_value),
+                Lead.whatsapp.ilike(search_value)
+            )
+        )
+        
+    if travel_start:
+        query = query.filter(Lead.travel_start_date >= travel_start)
+    
+    if travel_end:
+        query = query.filter(Lead.travel_end_date <= travel_end)
+
+    leads = query.all()
 
     return templates.TemplateResponse(
         "leads/list.html",
@@ -56,7 +88,14 @@ def list_leads(
             "request": request,
             "leads": leads,
             "current_user": current_user,
-            "get_status_label": get_status_label
+            "get_status_label": get_status_label,
+            "status_options": LEAD_STATUS_OPTIONS,
+            "destinations": destinations,
+            "selected_status": status or "",
+            "selected_destination_id": destination_id,
+            "search_value": search or "",
+            "travel_start": travel_start or "",
+            "travel_end": travel_end or ""
         }
     )
 
@@ -72,6 +111,7 @@ def create_lead_page(
         return RedirectResponse(url="/login", status_code=303)
 
     destinations = db.query(Destination).order_by(Destination.name.asc()).all()
+    pipelines = db.query(Pipeline).options(joinedload(Pipeline.stages)).all()
 
     return templates.TemplateResponse(
         "leads/create.html",
@@ -79,6 +119,7 @@ def create_lead_page(
             "request": request,
             "current_user": current_user,
             "destinations": destinations,
+            "pipelines": pipelines,
             "status_options": LEAD_STATUS_OPTIONS,
             "error": None
         }
@@ -95,6 +136,7 @@ def create_lead(
     destination_ids: list[int] = Form(...),
     travel_start_date: str = Form(...),
     travel_end_date: str = Form(...),
+    pipeline_stage_id: int | None = Form(None),
     db: Session = Depends(get_db)
 ):
     try:
@@ -118,6 +160,19 @@ def create_lead(
                 "destinations": destinations,
                 "status_options": LEAD_STATUS_OPTIONS,
                 "error": "Preencha todos os campos obrigatórios."
+            }
+        )
+        
+    existing_lead = db.query(Lead).filter(Lead.email == email).first()
+    if existing_lead:
+        return templates.TemplateResponse(
+            "leads/create.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "destinations": destinations,
+                "status_options": LEAD_STATUS_OPTIONS,
+                "error": "Já existe um lead com esse E-mail cadastrado."
             }
         )
 
@@ -196,7 +251,8 @@ def create_lead(
         whatsapp=whatsapp,
         status=status,
         travel_start_date=start_date,
-        travel_end_date=end_date
+        travel_end_date=end_date,
+        pipeline_stage_id=pipeline_stage_id
     )
 
     new_lead.destinations = selected_destinations
@@ -230,6 +286,7 @@ def edit_lead_page(
         return RedirectResponse(url="/leads", status_code=303)
 
     destinations = db.query(Destination).order_by(Destination.name.asc()).all()
+    pipelines = db.query(Pipeline).options(joinedload(Pipeline.stages)).all()
     selected_destination_ids = [destination.id for destination in lead.destinations]
 
     return templates.TemplateResponse(
@@ -239,6 +296,7 @@ def edit_lead_page(
             "current_user": current_user,
             "lead": lead,
             "destinations": destinations,
+            "pipelines": pipelines,
             "selected_destination_ids": selected_destination_ids,
             "status_options": LEAD_STATUS_OPTIONS,
             "error": None
@@ -257,6 +315,7 @@ def update_lead(
     destination_ids: list[int] = Form(...),
     travel_start_date: str = Form(...),
     travel_end_date: str = Form(...),
+    pipeline_stage_id: int | None = Form(None),
     db: Session = Depends(get_db)
 ):
     try:
@@ -286,6 +345,21 @@ def update_lead(
                 "selected_destination_ids": destination_ids,
                 "status_options": LEAD_STATUS_OPTIONS,
                 "error": "Preencha todos os campos obrigatórios."
+            }
+        )
+        
+    existing_lead = db.query(Lead).filter(Lead.email == email, Lead.id != lead_id).first()
+    if existing_lead:
+        return templates.TemplateResponse(
+            "leads/edit.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "lead": lead,
+                "destinations": destinations,
+                "selected_destination_ids": destination_ids,
+                "status_options": LEAD_STATUS_OPTIONS,
+                "error": "Já existe outro lead com esse E-mail cadastrado."
             }
         )
 
@@ -374,6 +448,7 @@ def update_lead(
     lead.status = status
     lead.travel_start_date = start_date
     lead.travel_end_date = end_date
+    lead.pipeline_stage_id = pipeline_stage_id
     lead.destinations = selected_destinations
 
     db.commit()

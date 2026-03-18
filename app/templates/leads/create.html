@@ -57,6 +57,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Adicionar a um Funil (Opcional)</label>
+                        <select name="pipeline_stage_id">
+                            <option value="">Nenhum Funil / Avulso</option>
+                            {% for pipeline in pipelines %}
+                                <optgroup label="{{ pipeline.name }}">
+                                    {% for stage in pipeline.stages %}
+                                        <option value="{{ stage.id }}">{{ stage.name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Destinos</label>
                         <div class="checkbox-group">
                             {% for destination in destinations %}

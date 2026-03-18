@@ -277,3 +277,24 @@ table tr:hover td {
     outline: none;
     border-color: #2563eb;
 }
+
+.filter-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+}

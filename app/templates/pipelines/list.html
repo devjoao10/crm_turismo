@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funis de Vendas - CRM Turismo</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=3">
+    <style>
+        .pipeline-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .pipeline-actions a, .pipeline-actions button { margin-left: 10px; padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; color: white; }
+        .btn-view { background: #3b82f6; }
+        .btn-edit { background: #10b981; }
+        .btn-delete { background: #ef4444; }
+        .form-group { margin-bottom: 15px; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>CRM Turismo</h2>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/users">Usuários</a>
+                <a href="/leads">Leads</a>
+                <a href="/pipelines" class="active">Funis (Kanban)</a>
+                <a href="/logout">Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Funis de Vendas (Pipelines)</h1>
+                <p>Gerencie seus funis e visualize o Kanban.</p>
+            </div>
+
+            {% if error %}
+            <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="card" style="margin-bottom: 20px;">
+                <h2>Criar Novo Funil</h2>
+                <form action="/pipelines" method="POST" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Nome do Funil:</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição:</label>
+                        <input type="text" name="description" class="form-control">
+                    </div>
+                    <button type="submit" class="btn" style="background: #3b82f6; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Criar Funil</button>
+                </form>
+            </div>
+
+            <div>
+                <h2>Seus Funis</h2>
+                {% if pipelines %}
+                    {% for pipeline in pipelines %}
+                    <div class="pipeline-card">
+                        <div>
+                            <h3>{{ pipeline.name }}</h3>
+                            <p style="color: #666; font-size: 0.9em;">{{ pipeline.description }}</p>
+                        </div>
+                        <div class="pipeline-actions" style="display: flex;">
+                            <a href="/pipelines/{{ pipeline.id }}/kanban" class="btn-view">👀 Kanban</a>
+                            <a href="/pipelines/{{ pipeline.id }}/stages" class="btn-edit">⚙️ Etapas</a>
+                            <form action="/pipelines/{{ pipeline.id }}/delete" method="POST" onsubmit="return confirm('Excluir este funil apagará todas as etapas (leads não serão apagados, mas perderão a etapa). Confirmar?');" style="margin: 0;">
+                                <button type="submit" class="btn-delete">🗑️ Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #666;">Nenhum funil criado ainda.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

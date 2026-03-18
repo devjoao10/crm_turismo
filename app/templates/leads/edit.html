@@ -57,6 +57,22 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Funil de Vendas</label>
+                        <select name="pipeline_stage_id">
+                            <option value="">Nenhum Funil / Avulso</option>
+                            {% for pipeline in pipelines %}
+                                <optgroup label="{{ pipeline.name }}">
+                                    {% for stage in pipeline.stages|sort(attribute='order') %}
+                                        <option value="{{ stage.id }}" {% if lead.pipeline_stage_id == stage.id %}selected{% endif %}>
+                                            {{ stage.name }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Destinos</label>
                         <div class="checkbox-group">
                             {% for destination in destinations %}

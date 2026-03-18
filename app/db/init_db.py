@@ -5,6 +5,7 @@ from app.db.database import Base, engine, SessionLocal
 from app.models.user import User
 from app.models.lead import Lead
 from app.models.destination import Destination
+from app.models.pipeline import Pipeline, PipelineStage
 from app.utils.security import hash_password
 
 
